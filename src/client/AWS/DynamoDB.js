@@ -3,6 +3,8 @@ const dependencies = {
   config: require('../../initialize').config
 }
 
+const isNull = value => value === null || value === undefined
+
 const DynamoDBClient = {
   putItem ({ table, item }, injection) {
     return getInstance(injection)
@@ -28,7 +30,7 @@ const DynamoDBClient = {
       })
       .promise()
   },
-  scan ({ table, attributes, filter }, injection) {
+  scan ({ table, attributes, filter, limit }, injection) {
     const params = {
       TableName: table,
       AttributesToGet: attributes
@@ -36,6 +38,10 @@ const DynamoDBClient = {
 
     if (filter) {
       Object.assign(params, { ScanFilter: filter })
+    }
+
+    if (!isNull(limit)) {
+      Object.assign(params, { Limit: limit })
     }
 
     return getInstance(injection)

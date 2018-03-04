@@ -86,9 +86,9 @@ class Repository {
 
     const attributes = this.mapper.getEntityAttributes()
 
-    const { filter } = option
+    const { filter, limit } = option
 
-    return DynamoClient.scan({ table: this.tableName, attributes, filter }, this.injection)
+    return DynamoClient.scan({ table: this.tableName, attributes, filter, limit }, this.injection)
       .then(data => data.Items.map(item => this.mapper.toEntity(item)))
   }
 }
