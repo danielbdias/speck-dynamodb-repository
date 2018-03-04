@@ -4,12 +4,12 @@ const config = {
   secretAccessKey: null
 }
 
-function initialize (configuration) {
-  Object.assign(config, configuration)
-
-  if (!config) {
+function initialize ({ region, accessKeyId, secretAccessKey }) {
+  if (!region) {
     throw new Error('You must set at least the AWS region in the configuration!')
   }
+
+  Object.assign(config, { region, accessKeyId, secretAccessKey })
 
   return
 }

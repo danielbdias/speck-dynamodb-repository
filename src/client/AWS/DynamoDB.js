@@ -1,27 +1,32 @@
 const dependencies = {
   DynamoDB: require('aws-sdk').DynamoDB,
-  config: require('../../initialize').config,
-  Promisify: require('../Promisify')
+  config: require('../../initialize').config
 }
 
 const DynamoDBClient = {
   putItem ({ table, item }, injection) {
-    return getInstance(injection).putItem({
-      TableName: table,
-      Item: item
-    })
+    return getInstance(injection)
+      .putItem({
+        TableName: table,
+        Item: item
+      })
+      .promise()
   },
   deleteItem ({ table, key }, injection) {
-    return getInstance(injection).deleteItem({
-      TableName: table,
-      Key: key
-    })
+    return getInstance(injection)
+      .deleteItem({
+        TableName: table,
+        Key: key
+      })
+      .promise()
   },
   getItem ({ table, key }, injection) {
-    return getInstance(injection).getItem({
-      TableName: table,
-      Key: key
-    })
+    return getInstance(injection)
+      .getItem({
+        TableName: table,
+        Key: key
+      })
+      .promise()
   },
   scan ({ table, attributes, filter }, injection) {
     const params = {
@@ -33,22 +38,20 @@ const DynamoDBClient = {
       Object.assign(params, { ScanFilter: filter })
     }
 
-    return getInstance(injection).scan(params)
+    return getInstance(injection)
+      .scan(params)
+      .promise()
   }
 }
 
 function getInstance (injection) {
-  const { DynamoDB, Promisify, config } = Object.assign({}, dependencies, injection)
+  const { DynamoDB, config } = Object.assign({}, dependencies, injection)
 
   if (DynamoDBClient.instance) {
     return DynamoDBClient.instance
   }
 
-  DynamoDBClient.instance = new Promisify({
-    ClassToBuild: DynamoDB,
-    methodsToPromisify: ['putItem', 'deleteItem', 'getItem', 'scan'],
-    constructorParameters: config
-  })
+  DynamoDBClient.instance = new DynamoDB(config)
 
   return DynamoDBClient.instance
 }

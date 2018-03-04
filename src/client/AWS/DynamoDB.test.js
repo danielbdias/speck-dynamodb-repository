@@ -1,49 +1,40 @@
-const { mock, assert } = require('sinon')
+const { mock } = require('sinon')
 const { expect } = require('chai')
 
+const DynamoDBClient = require('./DynamoDB')
+
+const setupDependencies = (DynamoMock) => {
+  return {
+    config: { region: 'anyValue' },
+    DynamoDB: function (config) {
+      expect(config).to.be.deep.equal({ region: 'anyValue' })
+      return DynamoMock
+    }
+  }
+}
+
 describe('DynamoDB Client', function () {
-  beforeEach(function () {
-    delete require.cache[require.resolve('./DynamoDB')]
-
-    this.DynamoDBClient = require('./DynamoDB')
-    this.parameters = {
-      table: 'the table',
-      item: 'the item'
+  it('#putItem', function () {
+    const input = {
+      table: 'some table',
+      item: 'some item'
     }
 
-    this.dependencies = {
-      DynamoDB: null,
-      Promisify: mock(),
-      config: { region: 'anyValue' }
-    }
-
-    const dynamoPromisified = {
+    const DynamoMock = {
       putItem: mock()
-        .thrice()
+        .once()
         .withExactArgs({
-          TableName: this.parameters.table,
-          Item: this.parameters.item
+          TableName: 'some table',
+          Item: 'some item'
         })
-        .resolves('the result')
+        .returns({
+          promise: mock().resolves('something')
+        })
     }
 
-    this.dependencies.Promisify
-      .withExactArgs({
-        ClassToBuild: this.dependencies.DynamoDB,
-        methodsToPromisify: ['putItem'],
-        constructorParameters: this.dependencies.config
-      })
-      .returns(dynamoPromisified)
-  })
+    const dependencies = setupDependencies(DynamoMock)
 
-  it('returns putItem call value', function () {
-    return this.DynamoDBClient.putItem(this.parameters, this.dependencies)
-      .then(result => expect(result).to.equal('the result'))
-  })
-
-  it('instantiate Promisify just once for more calls', function () {
-    return this.DynamoDBClient.putItem(this.parameters, this.dependencies)
-      .then(() => this.DynamoDBClient.putItem(this.parameters, this.dependencies))
-      .then(() => assert.calledOnce(this.dependencies.Promisify))
+    return DynamoDBClient.putItem(input, dependencies)
+      .then(result => expect(result).to.be.equal('something'))
   })
 })
