@@ -69,7 +69,7 @@ class Repository {
     return this.findAllBy()
   }
 
-  findAllByCriterias (criterias) {
+  findAllByCriterias (criterias, option = {}) {
     const filter = Object.keys(criterias)
       .reduce((accumulator, entityField) => Object.assign(accumulator, {
         [entityField]: {
@@ -78,7 +78,9 @@ class Repository {
         }
       }), {})
 
-    return this.findAllBy({ filter })
+    const options = Object.assign({}, { filter }, option)
+
+    return this.findAllBy(options)
   }
 
   findAllBy (option = {}) {
