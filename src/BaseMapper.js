@@ -11,10 +11,6 @@ const valueToDatabase = (value, type) => {
     case 'string':
       return { S: value }
     case 'date':
-      if (typeof value === 'number') {
-        return { N: value.toString() }
-      }
-
       return { N: value.getTime().toString() }
     case 'object':
       return { S: JSON.stringify(value) }
