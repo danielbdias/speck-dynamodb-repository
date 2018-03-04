@@ -1,5 +1,5 @@
 const dependencies = {
-  DynamoClient: require('../client/AWS/DynamoDB'),
+  DynamoClient: require('./client/AWS/DynamoDB'),
   uuid: require('uuid')
 }
 
